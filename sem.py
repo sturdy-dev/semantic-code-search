@@ -7,7 +7,9 @@ from subprocess import run
 from tqdm import tqdm
 import openai
 import argparse
-import json
+import pickle
+from sklearn.neighbors import KDTree
+import time
 
 from tree_sitter import Language, Parser, Tree
 import numpy as np
@@ -101,18 +103,20 @@ def get_embedding(text, isCode=True):
     if not isCode:
         text = text.replace("\n", " ")
     model = pl_model if isCode else nl_model
-    response = openai.Embedding.create(input=[text], model=model)
+    try:
+        response = openai.Embedding.create(input=[text], model=model)
+    except openai.error.APIError as e:
+        print(e)
+        time.sleep(10)
+        response = openai.Embedding.create(
+            input=[text], model=model)  # try one more time
     return response['data'][0]['embedding']
 
 
-def cosine_similarity(a, b):
-    return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
-
-
-def do_embed(root):
+def do_embed(root, language_lib_path):
     functions = get_repo_functions(
         root,
-        get_language_support(),
+        get_language_support(language_lib_path),
         ['function_definition', 'method_definition',
          'function_declaration', 'method_declaration']
     )
@@ -120,35 +124,35 @@ def do_embed(root):
     for f in functions:
         if len(f['text']) > 3000:  # truncate for the open ai max token limit
             f['text'] = f['text'][:3000]
-
+    embeddings = []
     print('Embedding {} functions. This is done once and cached in .embeddings'.format(
         len(functions)))
     for f in tqdm(functions):
-        f['embedding'] = get_embedding(f['text'], isCode=True)
-
+        embeddings.append(get_embedding(f['text'], isCode=True))
+    kdt = KDTree(np.array(embeddings), leaf_size=30, metric='euclidean')
     with gzip.open(root + '/' + '.embeddings', 'w') as f:
-        f.write(json.dumps(functions).encode('utf-8'))
+        f.write(pickle.dumps({'functions': functions, 'kdt': kdt}))
 
 
 def search(query_embedding, dataset, n=5):
-    scores = []
-    for i, d in enumerate(dataset):
-        score = cosine_similarity(query_embedding, d['embedding'])
-        scores.append((i, score))
+    (distances, nbrs) = dataset.get('kdt').query(
+        [query_embedding], k=n, return_distance=True, sort_results=True)
     result = []
-    for (i, score) in sorted(scores, key=lambda x: x[1], reverse=True)[:n]:
-        result.append((score, dataset[i]))
+    for idx, nbr in enumerate(nbrs[0]):
+        result.append((distances[0][idx], dataset.get('functions')[nbr]))
+    result.reverse()
     return result
 
 
 def do_query(root, query, file_extension=None, top_n=5):
     with gzip.open(root + '/' + '.embeddings', 'r') as f:
-        functions = json.loads(f.read().decode('utf-8'))
         query_embedding = get_embedding(query, isCode=False)
+        dataset = pickle.loads(f.read())
+        result = search(query_embedding, dataset, n=top_n)
         if file_extension:
-            functions = [f for f in functions if f['file'].endswith(
-                file_extension)]
-        return search(query_embedding, functions, n=top_n)
+            result = [r for r in result if r[1]
+                      ['file'].endswith(file_extension)]
+        return result
 
 
 def intersperse(lst, item):
@@ -179,11 +183,13 @@ def present_results(results, query, root):
         default=(results[0][1]['file'], results[0][1]['line']+1),
     ).execute()
 
+
 def open_in_editor(file, line, editor):
     if editor == 'vim':
         os.system('vim +{} {}'.format(line, file))
     elif editor == 'vscode':
         os.system('code --goto {}:{}'.format(file, line))
+
 
 def main():
     parser = argparse.ArgumentParser()
@@ -191,7 +197,9 @@ def main():
     parser.add_argument('-q', '--query', type=str, required=False)
     parser.add_argument('-x', '--file-extension', type=str, required=False)
     parser.add_argument('-n', '--top-n', type=int, required=False, default=5)
-    parser.add_argument('--editor', choices=['vscode', 'vim'], default='vscode', required=False)
+    parser.add_argument('--language-lib-path', type=str, required=False)
+    parser.add_argument(
+        '--editor', choices=['vscode', 'vim'], default='vscode', required=False)
     args = parser.parse_args()
 
     open_ai_key = os.environ.get('OPENAI_API_KEY')
@@ -207,7 +215,7 @@ def main():
         quit()
 
     if args.embed:
-        do_embed(root)
+        do_embed(root, args.language_lib_path)
         quit()
 
     if args.query:
@@ -218,7 +226,8 @@ def main():
         file_path_with_line = present_results(
             results=results, query=args.query, root=root)
         if file_path_with_line is not None:
-            open_in_editor(file_path_with_line[0], file_path_with_line[1], args.editor)
+            open_in_editor(
+                file_path_with_line[0], file_path_with_line[1], args.editor)
             quit()
 
 
