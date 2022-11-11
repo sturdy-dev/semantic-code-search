@@ -1,15 +1,12 @@
+import torch
 from InquirerPy.separator import Separator
-from InquirerPy import get_style
 from InquirerPy.base.control import Choice
 from InquirerPy import inquirer
 import gzip
 from subprocess import run
-from tqdm import tqdm
 import openai
 import argparse
 import pickle
-from sklearn.neighbors import KDTree
-import time
 
 from tree_sitter import Language, Parser, Tree
 import numpy as np
@@ -95,25 +92,7 @@ def git_root():
     return p.stdout.decode('utf-8').strip()
 
 
-pl_model = 'code-search-babbage-code-001'
-nl_model = 'code-search-babbage-text-001'
-
-
-def get_embedding(text, isCode=True):
-    if not isCode:
-        text = text.replace("\n", " ")
-    model = pl_model if isCode else nl_model
-    try:
-        response = openai.Embedding.create(input=[text], model=model)
-    except openai.error.APIError as e:
-        print(e)
-        time.sleep(10)
-        response = openai.Embedding.create(
-            input=[text], model=model)  # try one more time
-    return response['data'][0]['embedding']
-
-
-def do_embed(root, language_lib_path):
+def do_embed(model, root, language_lib_path, batch_size=32):
     functions = get_repo_functions(
         root,
         get_language_support(language_lib_path),
@@ -121,38 +100,33 @@ def do_embed(root, language_lib_path):
          'function_declaration', 'method_declaration']
     )
 
-    for f in functions:
-        if len(f['text']) > 3000:  # truncate for the open ai max token limit
-            f['text'] = f['text'][:3000]
-    embeddings = []
-    print('Embedding {} functions. This is done once and cached in .embeddings'.format(
-        len(functions)))
-    for f in tqdm(functions):
-        embeddings.append(get_embedding(f['text'], isCode=True))
-    kdt = KDTree(np.array(embeddings), leaf_size=30, metric='euclidean')
+    print('Embedding {} functions in {} batches. This is done once and cached in .embeddings'.format(
+        len(functions), int(np.ceil(len(functions)/batch_size))))
+    corpus_embeddings = model.encode(
+        [f['text'] for f in functions], convert_to_tensor=True, show_progress_bar=True, batch_size=batch_size)
+
     with gzip.open(root + '/' + '.embeddings', 'w') as f:
-        f.write(pickle.dumps({'functions': functions, 'kdt': kdt}))
+        f.write(pickle.dumps(
+            {'functions': functions, 'embeddings': corpus_embeddings}))
 
 
-def search(query_embedding, dataset, n=5):
-    (distances, nbrs) = dataset.get('kdt').query(
-        [query_embedding], k=n, return_distance=True, sort_results=True)
-    result = []
-    for idx, nbr in enumerate(nbrs[0]):
-        result.append((distances[0][idx], dataset.get('functions')[nbr]))
-    result.reverse()
-    return result
+def search(query_embedding, corpus_embeddings, functions, k=5, file_extension=None):
+    # TODO: filtering by file extension
+    cos_scores = util.cos_sim(query_embedding, corpus_embeddings)[0]
+    top_results = torch.topk(cos_scores, k=k, sorted=True)
+    out = []
+    for score, idx in zip(top_results[0], top_results[1]):
+        out.append((score, functions[idx]))
+    return out
 
 
-def do_query(root, query, file_extension=None, top_n=5):
+def do_query(model, root, query, file_extension=None, top_n=5):
     with gzip.open(root + '/' + '.embeddings', 'r') as f:
-        query_embedding = get_embedding(query, isCode=False)
+        query_embedding = model.encode(query, convert_to_tensor=True)
         dataset = pickle.loads(f.read())
-        result = search(query_embedding, dataset, n=top_n)
-        if file_extension:
-            result = [r for r in result if r[1]
-                      ['file'].endswith(file_extension)]
-        return result
+        results = search(query_embedding, dataset.get(
+            'embeddings'), dataset.get('functions'), k=top_n, file_extension=file_extension)
+        return results
 
 
 def intersperse(lst, item):
@@ -214,15 +188,20 @@ def main():
         print('Not a git repository. Run this in a git repository')
         quit()
 
+    # TODO: loading from disk takes almost a second, maybe run a background process?
+    model = SentenceTransformer('sentence-transformers/sentence-t5-base')
+
     if args.embed:
-        do_embed(root, args.language_lib_path)
+        do_embed(model, root, args.language_lib_path)
         quit()
 
     if args.query:
         if not os.path.isfile(root + '/' + '.embeddings'):
             print('Embeddings not found. Run with --embed')
             quit()
-        results = do_query(root, args.query, args.file_extension, args.top_n)
+        results = do_query(model, root, args.query,
+                           args.file_extension, args.top_n)
+
         file_path_with_line = present_results(
             results=results, query=args.query, root=root)
         if file_path_with_line is not None:
