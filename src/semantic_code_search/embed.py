@@ -1,6 +1,7 @@
 
 from sentence_transformers import SentenceTransformer
-from tree_sitter import Language, Parser, Tree
+from tree_sitter import Tree
+from tree_sitter_languages import get_parser
 from textwrap import dedent
 import os
 import numpy as np
@@ -8,27 +9,17 @@ import pickle
 import gzip
 
 
-def get_language_support(language_lib_path='build/my-languages.so'):
-    RUBY = Language(language_lib_path, 'ruby')
-    GO = Language(language_lib_path, 'go')
-    RUST = Language(language_lib_path, 'rust')
-    JAVA = Language(language_lib_path, 'java')
-    VUE = Language(language_lib_path, 'vue')
-    SVELTE = Language(language_lib_path, 'svelte')
-    JAVASCRIPT = Language(language_lib_path, 'javascript')
-    TYPESCRIPT = Language(language_lib_path, 'typescript')
-    PYTHON = Language(language_lib_path, 'python')
-
+def supported_file_extensions():
     return {
-        '.rb': RUBY,
-        '.go': GO,
-        '.rs': RUST,
-        '.java': JAVA,
-        '.vue': VUE,
-        '.svelte': SVELTE,
-        '.js': JAVASCRIPT,
-        '.ts': TYPESCRIPT,
-        '.py': PYTHON
+        '.rb': 'ruby',
+        '.go': 'go',
+        '.rs': 'rust',
+        '.java': 'java',
+        '.vue': 'vue',
+        '.svelte': 'svelte',
+        '.js': 'javascript',
+        '.ts': 'typescript',
+        '.py': 'python'
     }
 
 
@@ -61,16 +52,15 @@ def extract_functions(nodes, fp, file_content, relevant_node_types):
     return out
 
 
-def get_repo_functions(root, supported_languages, relevant_node_types):
+def get_repo_functions(root, supported_file_extensions, relevant_node_types):
     functions = []
     for fp in [root + '/' + f for f in os.popen('git -C {} ls-files'.format(root)).read().split('\n')]:
         if not os.path.isfile(fp):
             continue
         with open(fp, 'r') as f:
-            lang = supported_languages.get(fp[fp.rfind('.'):])
+            lang = supported_file_extensions.get(fp[fp.rfind('.'):])
             if lang:
-                parser = Parser()
-                parser.set_language(lang)
+                parser = get_parser(lang)
                 file_content = f.read()
                 tree = parser.parse(bytes(file_content, 'utf8'))
                 all_nodes = list(traverse_tree(tree.root_node))
@@ -81,11 +71,10 @@ def get_repo_functions(root, supported_languages, relevant_node_types):
 
 def do_embed(args):
     model = SentenceTransformer(args.model_name_or_path)
-    languages = get_language_support(args.language_lib_path)
     nodes_to_extract = ['function_definition', 'method_definition',
                         'function_declaration', 'method_declaration']
     functions = get_repo_functions(
-        args.path_to_repo, languages, nodes_to_extract)
+        args.path_to_repo, supported_file_extensions(), nodes_to_extract)
 
     print('Embedding {} functions in {} batches. This is done once and cached in .embeddings'.format(
         len(functions), int(np.ceil(len(functions)/args.batch_size))))

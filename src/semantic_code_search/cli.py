@@ -40,8 +40,6 @@ def main():
     subparsers = parser.add_subparsers(title='subcommands', required=True)
     embed_parser = subparsers.add_parser(
         'embed', help='(Re)create the embeddings index for codebase')
-    embed_parser.add_argument('-l', '--language-lib-path', metavar='PATH', type=str,
-                              required=True, help='Path to the tree-sitter language library')
     embed_parser.add_argument('-b', '--batch-size', metavar='BS',
                               type=int, default=32, help='Batch size for embeddings generation')
     embed_parser.set_defaults(func=embed_func)

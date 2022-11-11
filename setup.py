@@ -12,11 +12,12 @@ setuptools.setup(
     install_requires=[
                 'InquirerPy==0.3.4',
                 'numpy==1.22.4',
-                'openai==0.24.0',
                 'sentence_transformers==2.2.2',
                 'setuptools==62.6.0',
                 'torch==1.12.1',
                 'tree_sitter==0.20.1',
+                'tree_sitter_builds==2022.8.27',
+                'tree_sitter_languages==1.5.0',
     ],
     long_description=long_description,
     long_description_content_type='text/markdown',
