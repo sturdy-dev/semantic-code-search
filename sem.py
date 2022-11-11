@@ -12,6 +12,7 @@ from tree_sitter import Language, Parser, Tree
 import numpy as np
 from textwrap import dedent
 import os
+from sentence_transformers import SentenceTransformer, util
 
 
 def get_language_support(language_lib_path='build/my-languages.so'):
