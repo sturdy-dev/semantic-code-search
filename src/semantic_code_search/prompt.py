@@ -26,7 +26,7 @@ def present_results(results, query, root):
         choices=_intersperse(
             [
                 Choice((r[1]['file'], r[1]['line']+1),
-                       name='{:.3f}'.format(r[0]) + ' ' + r[1]['file'].removeprefix(root + '/') + ':' + str(r[1]['line']) + '\n\n' + r[1]['text'].replace('\t', '  ')+'\n')
+                       name='{:.3f}'.format(r[0]) + ' ' + r[1]['file'].lstrip(root + '/') + ':' + str(r[1]['line']) + '\n\n' + r[1]['text'].replace('\t', '  ')+'\n')
                 for r in results],
             Separator()
         ) + [Choice(None, name='')],
