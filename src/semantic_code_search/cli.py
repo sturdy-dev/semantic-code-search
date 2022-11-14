@@ -32,7 +32,7 @@ def query_func(args):
 
 def main():
     parser = argparse.ArgumentParser(
-        prog='semantic-code-search', description='Search your codebase using natural language')
+        prog='sem', description='Search your codebase using natural language')
     parser.add_argument('-p', '--path-to-repo', metavar='PATH', default=git_root(), type=git_root, required=False,
                         help='Path to the root of the git repo to search or embed')
     parser.add_argument('-m', '--model-name-or-path', metavar='MODEL', default='sentence-transformers/sentence-t5-base',
