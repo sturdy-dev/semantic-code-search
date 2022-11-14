@@ -15,8 +15,6 @@ def _supported_file_extensions():
         '.go': 'go',
         '.rs': 'rust',
         '.java': 'java',
-        '.vue': 'vue',
-        '.svelte': 'svelte',
         '.js': 'javascript',
         '.ts': 'typescript',
         '.py': 'python'

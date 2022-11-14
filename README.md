@@ -157,7 +157,7 @@ The application presents you with functions / methods that have the highest cosi
 ## Bugs and limitations
 
 - Currently the `.embeddings` index is not updated when repository files change. As a temporary workaround, `sem embed` can be re-ran occasionally.
-- Supported languages: `{ 'python', 'javascript', 'typescript', 'ruby', 'go', 'rust', 'java', 'vue', 'svelte' }`
+- Supported languages: `{ 'python', 'javascript', 'typescript', 'ruby', 'go', 'rust', 'java' }`
 - Supported text editors for opening results in: `{ 'vscode', 'vim' }`
 
 ## License
