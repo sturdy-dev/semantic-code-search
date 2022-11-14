@@ -1,7 +1,10 @@
 import argparse
-from subprocess import run
-from . import embed, query
 import os
+import sys
+from subprocess import run
+
+from src.semantic_code_search.embed import do_embed
+from src.semantic_code_search.query import do_query
 
 
 def git_root(path=None):
@@ -14,12 +17,12 @@ def git_root(path=None):
         if not path:
             path = os.getcwd()
         print('{} is not a git repo. Run this in a git repository or specify a path using the -p flag'.format(path))
-        quit()
+        sys.exit(1)
     return p.stdout.decode('utf-8').strip()
 
 
 def embed_func(args):
-    embed.do_embed(args)
+    do_embed(args)
 
 
 def query_func(args):
@@ -27,7 +30,7 @@ def query_func(args):
         args.query_text = args.query_text[0]
     else:
         args.query_text = None
-    query.do_query(args)
+    do_query(args)
 
 
 def main():

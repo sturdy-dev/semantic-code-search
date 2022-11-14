@@ -1,11 +1,11 @@
-
-from InquirerPy.separator import Separator
-from InquirerPy.base.control import Choice
-from InquirerPy import inquirer
 import os
 
+from InquirerPy import inquirer
+from InquirerPy.base.control import Choice
+from InquirerPy.separator import Separator
 
-def intersperse(lst, item):
+
+def _intersperse(lst, item):
     result = [item] * (len(lst) * 2 - 1)
     result[0::2] = lst
     return result
@@ -23,7 +23,7 @@ def present_results(results, query, root):
         height='100%',
         raise_keyboard_interrupt=False,
         mandatory=False,
-        choices=intersperse(
+        choices=_intersperse(
             [
                 Choice((r[1]['file'], r[1]['line']+1),
                        name='{:.3f}'.format(r[0]) + ' ' + r[1]['file'].removeprefix(root + '/') + ':' + str(r[1]['line']) + '\n\n' + r[1]['text'].replace('\t', '  ')+'\n')

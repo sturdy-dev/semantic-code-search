@@ -1,15 +1,15 @@
+import gzip
+import os
+import pickle
+from textwrap import dedent
 
+import numpy as np
 from sentence_transformers import SentenceTransformer
 from tree_sitter import Tree
 from tree_sitter_languages import get_parser
-from textwrap import dedent
-import os
-import numpy as np
-import pickle
-import gzip
 
 
-def supported_file_extensions():
+def _supported_file_extensions():
     return {
         '.rb': 'ruby',
         '.go': 'go',
@@ -23,10 +23,10 @@ def supported_file_extensions():
     }
 
 
-def traverse_tree(tree: Tree):
+def _traverse_tree(tree: Tree):
     cursor = tree.walk()
     reached_root = False
-    while reached_root == False:
+    while reached_root is False:
         yield cursor.node
         if cursor.goto_first_child():
             continue
@@ -41,7 +41,7 @@ def traverse_tree(tree: Tree):
                 retracing = False
 
 
-def extract_functions(nodes, fp, file_content, relevant_node_types):
+def _extract_functions(nodes, fp, file_content, relevant_node_types):
     out = []
     for n in nodes:
         if n.type in relevant_node_types:
@@ -52,7 +52,7 @@ def extract_functions(nodes, fp, file_content, relevant_node_types):
     return out
 
 
-def get_repo_functions(root, supported_file_extensions, relevant_node_types):
+def _get_repo_functions(root, supported_file_extensions, relevant_node_types):
     functions = []
     for fp in [root + '/' + f for f in os.popen('git -C {} ls-files'.format(root)).read().split('\n')]:
         if not os.path.isfile(fp):
@@ -63,8 +63,8 @@ def get_repo_functions(root, supported_file_extensions, relevant_node_types):
                 parser = get_parser(lang)
                 file_content = f.read()
                 tree = parser.parse(bytes(file_content, 'utf8'))
-                all_nodes = list(traverse_tree(tree.root_node))
-                functions.extend(extract_functions(
+                all_nodes = list(_traverse_tree(tree.root_node))
+                functions.extend(_extract_functions(
                     all_nodes, fp, file_content, relevant_node_types))
     return functions
 
@@ -73,8 +73,8 @@ def do_embed(args):
     model = SentenceTransformer(args.model_name_or_path)
     nodes_to_extract = ['function_definition', 'method_definition',
                         'function_declaration', 'method_declaration']
-    functions = get_repo_functions(
-        args.path_to_repo, supported_file_extensions(), nodes_to_extract)
+    functions = _get_repo_functions(
+        args.path_to_repo, _supported_file_extensions(), nodes_to_extract)
 
     print('Embedding {} functions in {} batches. This is done once and cached in .embeddings'.format(
         len(functions), int(np.ceil(len(functions)/args.batch_size))))
