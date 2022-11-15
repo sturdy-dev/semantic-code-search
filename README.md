@@ -1,16 +1,23 @@
 # Semantic Code Search
 
-Search your code from the terminal using natural language.
+Search your codebase from the terminal using natural language.
 
-`sem` is a command line application which allows you to search your git repository using natural language. **Example queries**:
+`sem` is a command line application which allows you to search your git repository using natural language. For example:
 
 - 'Where are API requests authenticated?'
 - 'Saving user objects to the database'
 - 'Handling of webhook events'
+- 'Where are jobs read from the queue?'
 
-You will get a prompt with the code snippets that match your query semantically. Pressing `Return` will open the relevant file at the matching location in your editor of choice.
+Basic usage:
 
-How does this work? In a nutshell, it uses a neural network to generate embeddings of your code and queries. More info [below](#how-it-works).
+```bash
+sem 'my query'
+```
+
+This will present you with a list of code snippets that most closely match your search. You can select one and press  `Return` to open it in your editor of choice.
+
+How does this work? In a nutshell, it uses a neural network to generate code embeddings. More info [below](#how-it-works).
 
 > NB: All processing is done on your hardware and no data is transmitted to the Internet.
 
@@ -26,53 +33,61 @@ pip3 install semantic-code-search
 
 ## Usage
 
-**TL;DR**
+TL;DR:
 
 ```bash
 cd /my/repo
-sem embed
-sem query 'my query'
+sem 'my query'
 ```
 
-The command line script is `sem`. You can run `sem --help` to see all available options.
+Run `sem --help` to see [all available options](#command-line-flags).
 
-`sem` has two subcommands:
+### Searching for code
 
-- [`embed`](#running-embed)
-- [`query`](#running-query)
+Inside your repo simply run
 
-Before you can query anything, you have to create 'embeddings' for your repository with the `embed` command. After that, you search with the `query` command.
+```bash
+sem 'my query'
+```
 
-You need to run `sem` inside a git repository or provide a path to a repo with the `-p` argument.
+*(quotes can be omitted)*
 
-> NB: The first time you run `sem` it will download an ML model so that it can perform all operations locally.
+> Note that you *need to* be  inside a git repository or provide a path to a repo with the `-p` argument.
 
-### Running `embed`
+Before you get your *first* search results two things need to happen:
 
-The `embed` subcommand will create information dense representations of functions and methods in your codebase (you can think of these as an 'index').
+- The app downloads it's [model](#model) (~500MB). This is done only once for the installation.
+- The app generates 'embeddings' of your code. This will be cached in an `.embeddings` file at the root of the repo and is reused in subsequent searches.
 
-Depending on the size of your repository, this can take from a couple of seconds to minutes.
+Depending on the project size, the above can take from a couple of seconds to minutes. Once this is complete, querying is very fast.
 
-Embeddings will be stored in an `.embeddings` file at the root of your repository.
-
-Example:
+Example output:
 
 ```bash session
 foo@bar:~$ cd /my/repo
-foo@bar:~$ sem embed
-
+foo@bar:~$ sem 'parsing command line args'
+Embeddings not found in /Users/kiril/src/semantic-code-search. Generating embeddings now.
 Embedding 15 functions in 1 batches. This is done once and cached in .embeddings
-Batches: 100%|██████████████████████████████████████████| 1/1 [00:05<00:00,  5.05s/it]
+Batches: 100%|█████████████████████████████████████████████████████████| 1/1 [00:07<00:00,  7.05s/it]
 ```
 
-### Running `query`
+### Navigating search results
 
-This is the subcommand you use for querying. It uses the `.embeddings` file in the root of the repository, so it requires that the `embed` command is ran first.
+By default, a list of the top 5 matches are presented containing :
+
+- Similarity score
+- File path
+- Line number
+- Code snippet
+
+You can navigate the list using the `↑` `↓` arrow keys or `vim` bindings. Pressing `return` will open the relevant file at the line of the code snippet in your editor.
+
+> NB: The editor used for opening can be set with the `--editor` argument.
 
 Example:
 
 ```bash session
-foo@bar:~$ sem query 'command line parsing'
+foo@bar:~$ sem 'command line parsing'
 Go to result for query "command line parsing"
 ┌────────────────────────────────────────────────────────────────┐
 │👉   0.832 src/semantic_code_search/cli.py:32                   │
@@ -85,21 +100,17 @@ Go to result for query "command line parsing"
                                 ...
 ```
 
-Result candidates can be navigated using the `↑` `↓` arrow keys or `vim` bindings. Pressing `return` will open the relevant file at the line of the code snippet in your editor.
-
-#### Opening search results in different editors
-
-By default, `sem` will try to open files using `VSCode`. This is controlled by the `--editor` argument of the `query` subcommand.
-
-- `--editor vscode` opens results in VSCode
-- `--editor vim` opens results in Vim
-
 ### Command line flags
 
 ``` bash
-usage: sem [-h] [-p PATH] [-m MODEL] {embed,query} ...
+usage: sem [-h] [-p PATH] [-m MODEL] [-d] [-b BS] [-x EXT] [-n N]
+           [-e {vscode,vim}]
+           ...
 
 Search your codebase using natural language
+
+positional arguments:
+  query_text
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -107,32 +118,9 @@ optional arguments:
                         Path to the root of the git repo to search or embed
   -m MODEL, --model-name-or-path MODEL
                         Name or path of the model to use
-
-subcommands:
-  {embed,query}
-    embed               (Re)create the embeddings index for codebase
-    query               Search the codebase using natural language
-
-```
-
-``` bash
-usage: sem embed [-h] [-b BS]
-
-optional arguments:
-  -h, --help            show this help message and exit
+  -d, --embed           (Re)create the embeddings index for codebase
   -b BS, --batch-size BS
                         Batch size for embeddings generation
-
-```
-
-``` bash
-usage: sem query [-h] [-x EXT] [-n N] [-e {vscode,vim}] ...
-
-positional arguments:
-  query_text
-
-optional arguments:
-  -h, --help            show this help message and exit
   -x EXT, --file-extension EXT
                         File extension filter (e.g. "py" will only retrun
                         results from Python files)

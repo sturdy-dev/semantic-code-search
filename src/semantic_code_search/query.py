@@ -7,6 +7,7 @@ import torch
 from sentence_transformers import SentenceTransformer, util
 
 from src.semantic_code_search.prompt import present_results, open_in_editor
+from src.semantic_code_search.embed import do_embed
 
 
 def _search(query_embedding, corpus_embeddings, functions, k=5, file_extension=None):
@@ -35,8 +36,9 @@ def do_query(args):
         sys.exit(1)
 
     if not os.path.isfile(args.path_to_repo + '/' + '.embeddings'):
-        print('Embeddings not found in {}. Run with --embed'.format(args.path_to_repo))
-        sys.exit(1)
+        print('Embeddings not found in {}. Generating embeddings now.'.format(
+            args.path_to_repo))
+        do_embed(args)
 
     model = SentenceTransformer(args.model_name_or_path)
 
