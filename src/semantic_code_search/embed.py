@@ -1,5 +1,6 @@
 import gzip
 import os
+import sys
 import pickle
 from textwrap import dedent
 
@@ -73,6 +74,10 @@ def do_embed(args):
                         'function_declaration', 'method_declaration']
     functions = _get_repo_functions(
         args.path_to_repo, _supported_file_extensions(), nodes_to_extract)
+
+    if not functions:
+        print('No supported languages found in {}. Exiting'.format(args.path_to_repo))
+        sys.exit(1)
 
     print('Embedding {} functions in {} batches. This is done once and cached in .embeddings'.format(
         len(functions), int(np.ceil(len(functions)/args.batch_size))))
