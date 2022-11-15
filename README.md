@@ -1,6 +1,22 @@
 # Semantic Code Search
 
+<p align='center'>
+    <a href="https://github.com/sturdy-dev/semantic-code-search/blob/main/LICENSE.txt">
+        <img alt="GitHub"
+        src="https://img.shields.io/github/license/sturdy-dev/semantic-code-search">
+    </a>
+</p>
+<p align="center">
+  <a href="#overview">🔍 Overview</a> •
+  <a href="#installation">🔧 Installation</a> •
+  <a href="#usage">💻 Usage</a> •
+  <a href="#command-line-flags">📖 Docs</a> •
+  <a href="#how-it-works">🧠 How it works</a>
+</p>
+
 Search your codebase from the terminal using natural language.
+
+## Overview
 
 `sem` is a command line application which allows you to search your git repository using natural language. For example:
 
