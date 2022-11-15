@@ -152,7 +152,13 @@ When the `embed` subcommand is ran, function and method definitions are first ex
 
 When the `query` subcommand is ran, embeddings are generated from the query text. This is then used in a 'nearest neighbor' search to discover function or methods with similar embeddings. We are basically comparing the [cosine similarity](https://en.wikipedia.org/wiki/Cosine_similarity) between vectors.
 
-The application presents you with functions / methods that have the highest cosine similarity score with the query text.
+### Model
+
+The application uses [sentence transformer](https://www.sbert.net/) model architecture to produce 'sentence' embeddings for functions and queries. The particular model is [krlvi/sentence-t5-base-nlpl-code-x-glue](https://huggingface.co/krlvi/sentence-t5-base-nlpl-code-x-glue) which is based of a [SentenceT5-Base](https://github.com/google-research/t5x_retrieval#released-model-checkpoints) checkpoint with 110M parameters and a pooling layer.
+
+It has been further trained on the [code_x_glue_tc_text_to_code](https://huggingface.co/datasets/code_x_glue_tc_text_to_code) dataset of 'natural language' — 'programming language' pairs.
+
+You can experiment with your own sentence transformer models with the `--model` parameter.
 
 ## Bugs and limitations
 
