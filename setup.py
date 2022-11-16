@@ -10,8 +10,9 @@ setuptools.setup(
     author_email='kiril@codeball.ai',
     description='Search your codebase using natural language.',
     install_requires=[
-                'InquirerPy==0.3.4',
                 'numpy==1.22.4',
+                'prompt_toolkit==3.0.32',
+                'Pygments==2.12.0',
                 'sentence_transformers==2.2.2',
                 'setuptools==62.6.0',
                 'torch==1.12.1',

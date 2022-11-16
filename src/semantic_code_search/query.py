@@ -6,8 +6,8 @@ import sys
 import torch
 from sentence_transformers import SentenceTransformer, util
 
-from src.semantic_code_search.prompt import present_results, open_in_editor
 from src.semantic_code_search.embed import do_embed
+from src.semantic_code_search.prompt import ResultScreen
 
 
 def _search(query_embedding, corpus_embeddings, functions, k=5, file_extension=None):
@@ -29,6 +29,13 @@ def _query_embeddings(model, root, query, file_extension=None, top_n=5):
         return results
 
 
+def open_in_editor(file, line, editor):
+    if editor == 'vim':
+        os.system('vim +{} {}'.format(line, file))
+    elif editor == 'vscode':
+        os.system('code --goto {}:{}'.format(file, line))
+
+
 def do_query(args):
     if not args.query_text:
         print('provide a query')
@@ -45,8 +52,9 @@ def do_query(args):
     results = _query_embeddings(model, args.path_to_repo, args.query_text,
                                 args.file_extension, args.n_results)
 
-    file_path_with_line = present_results(
-        results=results, query=args.query_text, root=args.path_to_repo)
+    selected_idx = ResultScreen(results, args.query_text).run()
+    file_path_with_line = (
+        results[selected_idx][1]['file'], results[selected_idx][1]['line'] + 1)
     if file_path_with_line is not None:
         open_in_editor(
             file_path_with_line[0], file_path_with_line[1], args.editor)
