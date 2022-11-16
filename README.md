@@ -164,9 +164,9 @@ When the `query` subcommand is ran, embeddings are generated from the query text
 
 ### Model
 
-The application uses [sentence transformer](https://www.sbert.net/) model architecture to produce 'sentence' embeddings for functions and queries. The particular model is [krlvi/sentence-t5-base-nlpl-code-x-glue](https://huggingface.co/krlvi/sentence-t5-base-nlpl-code-x-glue) which is based of a [SentenceT5-Base](https://github.com/google-research/t5x_retrieval#released-model-checkpoints) checkpoint with 110M parameters and a pooling layer.
+The application uses [sentence transformer](https://www.sbert.net/) model architecture to produce 'sentence' embeddings for functions and queries. The particular model is [krlvi/sentence-t5-base-nlpl-code_search_net](https://huggingface.co/krlvi/sentence-t5-base-nlpl-code_search_net) which is based of a [SentenceT5-Base](https://github.com/google-research/t5x_retrieval#released-model-checkpoints) checkpoint with 110M parameters and a pooling layer.
 
-It has been further trained on the [code_x_glue_tc_text_to_code](https://huggingface.co/datasets/code_x_glue_tc_text_to_code) dataset of 'natural language' — 'programming language' pairs.
+It has been further trained on the [code_search_net](https://huggingface.co/datasets/code_search_net) dataset of 'natural language' — 'programming language' pairs with a [MultipleNegativesRanking](https://github.com/UKPLab/sentence-transformers/blob/master/sentence_transformers/losses/MultipleNegativesRankingLoss.py) loss function.
 
 You can experiment with your own sentence transformer models with the `--model` parameter.
 

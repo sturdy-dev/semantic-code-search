@@ -38,7 +38,7 @@ def main():
         prog='sem', description='Search your codebase using natural language')
     parser.add_argument('-p', '--path-to-repo', metavar='PATH', default=git_root(), type=git_root, required=False,
                         help='Path to the root of the git repo to search or embed')
-    parser.add_argument('-m', '--model-name-or-path', metavar='MODEL', default='krlvi/sentence-t5-base-nlpl-code-x-glue',
+    parser.add_argument('-m', '--model-name-or-path', metavar='MODEL', default='krlvi/sentence-t5-base-nlpl-code_search_net',
                         type=str, required=False, help='Name or path of the model to use')
     parser.add_argument('-d', '--embed', action='store_true', default=False,
                         required=False, help='(Re)create the embeddings index for codebase')
