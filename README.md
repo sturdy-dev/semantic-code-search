@@ -4,7 +4,7 @@
   <img src="https://raw.githubusercontent.com/sturdy-dev/semantic-code-search/main/docs/readme-banner.jpg">
 </p>
 <p align='center'>
-  Search your codebase using natural language.
+  Search your codebase with natural language.
 </p>
 <p align='center'>
     <a href="https://github.com/sturdy-dev/semantic-code-search/blob/main/LICENSE.txt">
@@ -76,9 +76,9 @@ sem 'my query'
 
 > Note that you *need to* be  inside a git repository or provide a path to a repo with the `-p` argument.
 
-Before you get your *first* search results two things need to happen:
+Before you get your *first* search results, two things need to happen:
 
-- The app downloads it's [model](#model) (~500MB). This is done only once for the installation.
+- The app downloads its [model](#model) (~500 MB). This is done only once for the installation.
 - The app generates 'embeddings' of your code. This will be cached in an `.embeddings` file at the root of the repo and is reused in subsequent searches.
 
 Depending on the project size, the above can take from a couple of seconds to minutes. Once this is complete, querying is very fast.
@@ -95,7 +95,7 @@ Batches: 100%|██████████████████████
 
 ### Navigating search results
 
-By default, a list of the top 5 matches are presented containing :
+By default, a list of the top 5 matches are shown, containing :
 
 - Similarity score
 - File path
@@ -106,21 +106,9 @@ You can navigate the list using the `↑` `↓` arrow keys or `vim` bindings. Pr
 
 > NB: The editor used for opening can be set with the `--editor` argument.
 
-Example:
+Example results:
 
-```bash session
-foo@bar:~$ sem 'command line parsing'
-Go to result for query "command line parsing"
-┌────────────────────────────────────────────────────────────────┐
-│👉   0.832 src/semantic_code_search/cli.py:32                   │
-│                                                                │
-│def main():                                                     │
-│    parser = argparse.ArgumentParser(                           │
-│        prog='sem', description='Search your codebase using natu│
-│    parser.add_argument('-p', '--path-to-repo', metavar='PATH', │
-│                        help='Path to the root of the git repo t
-                                ...
-```
+![example results](./docs/example-results.png)
 
 ### Command line flags
 
@@ -144,7 +132,7 @@ optional arguments:
   -b BS, --batch-size BS
                         Batch size for embeddings generation
   -x EXT, --file-extension EXT
-                        File extension filter (e.g. "py" will only retrun
+                        File extension filter (e.g. "py" will only return
                         results from Python files)
   -n N, --n-results N   Number of results to return
   -e {vscode,vim}, --editor {vscode,vim}
@@ -155,12 +143,12 @@ optional arguments:
 
 In a nutshell, this application uses a [transformer](https://en.wikipedia.org/wiki/Transformer_(machine_learning_model)) machine learning model to generate embeddings of methods and functions in your codebase. Embeddings are information dense numerical representations of the semantics of the text/code they represent.
 
-Here is  great blog post by Jay Alammar which explains the concept really nicely:
+Here is a great blog post by Jay Alammar which explains the concept really nicely:
 > <https://jalammar.github.io/illustrated-word2vec/>
 
-When the `embed` subcommand is ran, function and method definitions are first extracted from the source files and then used for sentence embedding. To avoid doing this for every query, the results are compressed and saved in an `.embeddings` file.
+When the app is ran with the `--embed` argument, function and method definitions are first extracted from the source files and then used for sentence embedding. To avoid doing this for every query, the results are compressed and saved in an `.embeddings` file.
 
-When the `query` subcommand is ran, embeddings are generated from the query text. This is then used in a 'nearest neighbor' search to discover function or methods with similar embeddings. We are basically comparing the [cosine similarity](https://en.wikipedia.org/wiki/Cosine_similarity) between vectors.
+When a query is being processed, embeddings are generated from the query text. This is then used in a 'nearest neighbor' search to discover function or methods with similar embeddings. We are basically comparing the [cosine similarity](https://en.wikipedia.org/wiki/Cosine_similarity) between vectors.
 
 ### Model
 
@@ -172,7 +160,7 @@ You can experiment with your own sentence transformer models with the `--model` 
 
 ## Bugs and limitations
 
-- Currently the `.embeddings` index is not updated when repository files change. As a temporary workaround, `sem embed` can be re-ran occasionally.
+- Currently, the `.embeddings` index is not updated when repository files change. As a temporary workaround, `sem embed` can be re-ran occasionally.
 - Supported languages: `{ 'python', 'javascript', 'typescript', 'ruby', 'go', 'rust', 'java' }`
 - Supported text editors for opening results in: `{ 'vscode', 'vim' }`
 

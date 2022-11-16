@@ -46,7 +46,7 @@ def main():
                               type=int, default=32, help='Batch size for embeddings generation')
 
     parser.add_argument('-x', '--file-extension', metavar='EXT', type=str, required=False,
-                              help='File extension filter (e.g. "py" will only retrun results from Python files)')
+                              help='File extension filter (e.g. "py" will only return results from Python files)')
     parser.add_argument('-n', '--n-results', metavar='N', type=int,
                         required=False, default=5, help='Number of results to return')
     parser.add_argument('-e', '--editor', choices=[
