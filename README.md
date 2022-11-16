@@ -1,5 +1,11 @@
 # Semantic Code Search
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/sturdy-dev/semantic-code-search/main/docs/readme-banner.jpg">
+</p>
+<p align='center'>
+  Search your codebase using natural language.
+</p>
 <p align='center'>
     <a href="https://github.com/sturdy-dev/semantic-code-search/blob/main/LICENSE.txt">
         <img alt="GitHub"
@@ -14,7 +20,7 @@
   <a href="#how-it-works">🧠 How it works</a>
 </p>
 
-Search your codebase from the terminal using natural language.
+--------------------------------------------------------------------
 
 ## Overview
 
