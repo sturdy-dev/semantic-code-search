@@ -1,7 +1,7 @@
 # Semantic Code Search
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/sturdy-dev/semantic-code-search/main/docs/readme-banner.jpg">
+  <img src="https://raw.githubusercontent.com/sturdy-dev/semantic-code-search/main/docs/readme-banner.png">
 </p>
 <p align='center'>
   Search your codebase with natural language.
