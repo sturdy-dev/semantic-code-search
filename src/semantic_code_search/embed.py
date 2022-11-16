@@ -5,7 +5,6 @@ import pickle
 from textwrap import dedent
 
 import numpy as np
-from sentence_transformers import SentenceTransformer
 from tree_sitter import Tree
 from tree_sitter_languages import get_parser
 
@@ -68,8 +67,7 @@ def _get_repo_functions(root, supported_file_extensions, relevant_node_types):
     return functions
 
 
-def do_embed(args):
-    model = SentenceTransformer(args.model_name_or_path)
+def do_embed(args, model):
     nodes_to_extract = ['function_definition', 'method_definition',
                         'function_declaration', 'method_declaration']
     functions = _get_repo_functions(
@@ -84,6 +82,8 @@ def do_embed(args):
     corpus_embeddings = model.encode(
         [f['text'] for f in functions], convert_to_tensor=True, show_progress_bar=True, batch_size=args.batch_size)
 
+    dataset = {'functions': functions,
+               'embeddings': corpus_embeddings, 'model_name': args.model_name_or_path}
     with gzip.open(args.path_to_repo + '/' + '.embeddings', 'w') as f:
-        f.write(pickle.dumps(
-            {'functions': functions, 'embeddings': corpus_embeddings}))
+        f.write(pickle.dumps(dataset))
+    return dataset

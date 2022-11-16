@@ -4,7 +4,7 @@ import pickle
 import sys
 
 import torch
-from sentence_transformers import SentenceTransformer, util
+from sentence_transformers import util
 
 from src.semantic_code_search.embed import do_embed
 from src.semantic_code_search.prompt import ResultScreen
@@ -20,12 +20,15 @@ def _search(query_embedding, corpus_embeddings, functions, k=5, file_extension=N
     return out
 
 
-def _query_embeddings(model, root, query, file_extension=None, top_n=5):
-    with gzip.open(root + '/' + '.embeddings', 'r') as f:
-        query_embedding = model.encode(query, convert_to_tensor=True)
+def _query_embeddings(model, args):
+    with gzip.open(args.path_to_repo + '/' + '.embeddings', 'r') as f:
         dataset = pickle.loads(f.read())
+        if dataset.get('model_name') != args.model_name_or_path:
+            print('Model name mismatch. Regenerating embeddings.')
+            dataset = do_embed(args, model)
+        query_embedding = model.encode(args.query_text, convert_to_tensor=True)
         results = _search(query_embedding, dataset.get(
-            'embeddings'), dataset.get('functions'), k=top_n, file_extension=file_extension)
+            'embeddings'), dataset.get('functions'), k=args.n_results, file_extension=args.file_extension)
         return results
 
 
@@ -36,7 +39,7 @@ def open_in_editor(file, line, editor):
         os.system('code --goto {}:{}'.format(file, line))
 
 
-def do_query(args):
+def do_query(args, model):
     if not args.query_text:
         print('provide a query')
         # todo: add a prompt here as a fallback
@@ -45,16 +48,13 @@ def do_query(args):
     if not os.path.isfile(args.path_to_repo + '/' + '.embeddings'):
         print('Embeddings not found in {}. Generating embeddings now.'.format(
             args.path_to_repo))
-        do_embed(args)
+        do_embed(args, model)
 
-    model = SentenceTransformer(args.model_name_or_path)
-
-    results = _query_embeddings(model, args.path_to_repo, args.query_text,
-                                args.file_extension, args.n_results)
+    results = _query_embeddings(model, args)
 
     selected_idx = ResultScreen(results, args.query_text).run()
     if not selected_idx:
-        sys.exit(0) # user cancelled
+        sys.exit(0)  # user cancelled
     file_path_with_line = (
         results[selected_idx][1]['file'], results[selected_idx][1]['line'] + 1)
     if file_path_with_line is not None:

@@ -3,6 +3,8 @@ import os
 import sys
 from subprocess import run
 
+from sentence_transformers import SentenceTransformer
+
 from src.semantic_code_search.embed import do_embed
 from src.semantic_code_search.query import do_query
 
@@ -22,15 +24,17 @@ def git_root(path=None):
 
 
 def embed_func(args):
-    do_embed(args)
+    model = SentenceTransformer(args.model_name_or_path)
+    do_embed(args, model)
 
 
 def query_func(args):
+    model = SentenceTransformer(args.model_name_or_path)
     if len(args.query_text) > 0:
         args.query_text = ' '.join(args.query_text)
     else:
         args.query_text = None
-    do_query(args)
+    do_query(args, model)
 
 
 def main():
