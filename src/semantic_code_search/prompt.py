@@ -125,6 +125,10 @@ class ResultScreen():
         def _(event):
             event.app.exit()
 
+        @self.kb.add('q')
+        def _(event):
+            event.app.exit()
+
         @self.kb.add('down')
         def _(event):
             self._go_down()
