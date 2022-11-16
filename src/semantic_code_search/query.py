@@ -53,6 +53,8 @@ def do_query(args):
                                 args.file_extension, args.n_results)
 
     selected_idx = ResultScreen(results, args.query_text).run()
+    if not selected_idx:
+        sys.exit(0) # user cancelled
     file_path_with_line = (
         results[selected_idx][1]['file'], results[selected_idx][1]['line'] + 1)
     if file_path_with_line is not None:
