@@ -5,8 +5,8 @@ from subprocess import run
 
 from sentence_transformers import SentenceTransformer
 
-from src.semantic_code_search.embed import do_embed
-from src.semantic_code_search.query import do_query
+from semantic_code_search.embed import do_embed
+from semantic_code_search.query import do_query
 
 
 def git_root(path=None):

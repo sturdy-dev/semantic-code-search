@@ -6,8 +6,8 @@ import sys
 import torch
 from sentence_transformers import util
 
-from src.semantic_code_search.embed import do_embed
-from src.semantic_code_search.prompt import ResultScreen
+from semantic_code_search.embed import do_embed
+from semantic_code_search.prompt import ResultScreen
 
 
 def _search(query_embedding, corpus_embeddings, functions, k=5, file_extension=None):

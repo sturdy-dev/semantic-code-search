@@ -5,7 +5,7 @@ with open('README.md', 'r') as f:
 
 setuptools.setup(
     name='semantic-code-search',
-    version='0.1.1',
+    version='0.1.3',
     author='Kiril Videlov',
     author_email='kiril@codeball.ai',
     description='Search your codebase with natural language.',
@@ -24,10 +24,12 @@ setuptools.setup(
     long_description_content_type='text/markdown',
     python_requires='>=3.8',
     url='https://github.com/sturdy-dev/semantic-code-search',
-    packages=setuptools.find_packages(where="src"),
+    package_dir={
+        "semantic_code_search": "src/semantic_code_search"
+    },
     entry_points={
         'console_scripts': [
-            'sem=src.semantic_code_search.cli:main',
+            'sem=semantic_code_search.cli:main',
         ]
     },
     keywords='semantic code search',
