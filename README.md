@@ -4,7 +4,7 @@
   <img src="https://raw.githubusercontent.com/sturdy-dev/semantic-code-search/main/docs/readme-banner.png">
 </p>
 <p align='center'>
-  Search your codebase with natural language.
+  Search your codebase with natural language. No data leaves your computer.
 </p>
 <p align='center'>
     <a href="https://github.com/sturdy-dev/semantic-code-search/blob/main/LICENSE.txt">
@@ -24,12 +24,14 @@
 
 ## Overview
 
-`sem` is a command line application which allows you to search your git repository using natural language. For example:
+`sem` is a command line application which allows you to search your git repository using natural language. For example you can query for:
 
 - 'Where are API requests authenticated?'
 - 'Saving user objects to the database'
 - 'Handling of webhook events'
 - 'Where are jobs read from the queue?'
+
+You will get a (visualized) list of code snippets and their `file:line` locations. You can use `sem` for exploring large codebases or, if you are as forgetfull as I am, even small ones.
 
 Basic usage:
 
