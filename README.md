@@ -11,6 +11,10 @@
         <img alt="GitHub"
         src="https://img.shields.io/github/license/sturdy-dev/semantic-code-search">
     </a>
+    <a href="https://pypi.org/project/semantic-code-search">
+     <img alt="PyPi"
+ src="https://img.shields.io/pypi/v/semantic-code-search">
+    </a>
 </p>
 <p align="center">
   <a href="#overview">🔍 Overview</a> •
