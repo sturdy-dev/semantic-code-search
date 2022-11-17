@@ -12,6 +12,7 @@ from prompt_toolkit.layout.layout import Layout
 from prompt_toolkit.lexers import PygmentsLexer
 from prompt_toolkit.widgets.base import Frame
 from pygments.lexers.c_cpp import CLexer
+from pygments.lexers.c_cpp import CppLexer
 from pygments.lexers.go import GoLexer
 from pygments.lexers.javascript import JavascriptLexer, TypeScriptLexer
 from pygments.lexers.jvm import JavaLexer, KotlinLexer
@@ -53,6 +54,10 @@ def _syntax_highlighting(text, file):
         lexer = PhpLexer
     elif file.endswith('rs'):
         lexer = RustLexer
+    elif file.endswith('c') or file.endswith('h'):
+        lexer = CLexer
+    elif file.endswith('cpp') or file.endswith('hpp'):
+        lexer = CppLexer
 
     pigment = PygmentsLexer(lexer, sync_from_start=True)
     lex_func = pigment.lex_document(Document(text.replace('\t', '    ')))

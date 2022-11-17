@@ -7,6 +7,7 @@ from textwrap import dedent
 import numpy as np
 from tree_sitter import Tree
 from tree_sitter_languages import get_parser
+from tqdm import tqdm
 
 
 def _supported_file_extensions():
@@ -17,7 +18,11 @@ def _supported_file_extensions():
         '.java': 'java',
         '.js': 'javascript',
         '.ts': 'typescript',
-        '.py': 'python'
+        '.py': 'python',
+        '.c': 'c',
+        '.h': 'c',
+        '.cpp': 'cpp',
+        '.hpp': 'cpp',
     }
 
 
@@ -52,7 +57,8 @@ def _extract_functions(nodes, fp, file_content, relevant_node_types):
 
 def _get_repo_functions(root, supported_file_extensions, relevant_node_types):
     functions = []
-    for fp in [root + '/' + f for f in os.popen('git -C {} ls-files'.format(root)).read().split('\n')]:
+    print('Extracting functions from {}'.format(root))
+    for fp in tqdm([root + '/' + f for f in os.popen('git -C {} ls-files'.format(root)).read().split('\n')]):
         if not os.path.isfile(fp):
             continue
         with open(fp, 'r') as f:

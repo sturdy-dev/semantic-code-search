@@ -167,7 +167,7 @@ You can experiment with your own sentence transformer models with the `--model` 
 ## Bugs and limitations
 
 - Currently, the `.embeddings` index is not updated when repository files change. As a temporary workaround, `sem embed` can be re-ran occasionally.
-- Supported languages: `{ 'python', 'javascript', 'typescript', 'ruby', 'go', 'rust', 'java' }`
+- Supported languages: `{ 'python', 'javascript', 'typescript', 'ruby', 'go', 'rust', 'java', 'c', 'c++' }`
 - Supported text editors for opening results in: `{ 'vscode', 'vim' }`
 
 ## License

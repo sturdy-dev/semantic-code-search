@@ -5,7 +5,7 @@ with open('README.md', 'r') as f:
 
 setuptools.setup(
     name='semantic-code-search',
-    version='0.1.3',
+    version='0.2.0',
     author='Kiril Videlov',
     author_email='kiril@codeball.ai',
     description='Search your codebase with natural language.',
