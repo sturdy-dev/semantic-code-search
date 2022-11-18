@@ -62,7 +62,7 @@ def main():
     parser.add_argument('-e', '--editor', choices=[
                         'vscode', 'vim'], default='vscode', required=False, help='Editor to open selected result in')
     parser.add_argument('-c', '--cluster', action='store_true', default=False,
-                        required=False, help='Generate clusters of related functions and methods')
+                        required=False, help='Generate clusters of code that is semantically similar. You can use this to spot near duplicates, results are simply printed to stdout')
     parser.add_argument('--cluster-max-distance', metavar='THRESHOLD', type=float, default=0.2, required=False,
                         help='How close functions need to be to one another to be clustered. Distance 0 means that the code is identical, smaller values (e.g. 0.2, 0.3) are stricter and result in fewer matches ')
     parser.add_argument('--cluster-min-lines', metavar='SIZE', type=int, default=0, required=False,

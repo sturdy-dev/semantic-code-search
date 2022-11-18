@@ -120,7 +120,9 @@ Example results:
 
 ``` bash
 usage: sem [-h] [-p PATH] [-m MODEL] [-d] [-b BS] [-x EXT] [-n N]
-           [-e {vscode,vim}]
+           [-e {vscode,vim}] [-c] [--cluster-max-distance THRESHOLD]
+           [--cluster-min-lines SIZE] [--cluster-min-cluster-size SIZE]
+           [--cluster-ignore-identincal]
            ...
 
 Search your codebase using natural language
@@ -143,6 +145,25 @@ optional arguments:
   -n N, --n-results N   Number of results to return
   -e {vscode,vim}, --editor {vscode,vim}
                         Editor to open selected result in
+  -c, --cluster         Generate clusters of code that is semantically
+                        similar. You can use this to spot near duplicates,
+                        results are simply printed to stdout
+  --cluster-max-distance THRESHOLD
+                        How close functions need to be to one another to be
+                        clustered. Distance 0 means that the code is
+                        identical, smaller values (e.g. 0.2, 0.3) are stricter
+                        and result in fewer matches
+  --cluster-min-lines SIZE
+                        Ignore clusters with code snippets smaller than this
+                        size (lines of code). Use this if you are not
+                        interested in smaller duplications (eg. one liners)
+  --cluster-min-cluster-size SIZE
+                        Ignore clusters smaller than this size. Use this if
+                        you want to find code that is similar and repeated
+                        many times (e.g. >5)
+  --cluster-ignore-identincal
+                        Ignore identical code / exact duplicates (where
+                        distance is 0)
 ```
 
 ## How it works
