@@ -13,7 +13,7 @@ from semantic_code_search.prompt import ResultScreen
 def _search(query_embedding, corpus_embeddings, functions, k=5, file_extension=None):
     # TODO: filtering by file extension
     cos_scores = util.cos_sim(query_embedding, corpus_embeddings)[0]
-    top_results = torch.topk(cos_scores, k=min(k, len(cos_scores) -1), sorted=True)
+    top_results = torch.topk(cos_scores, k=min(k, len(cos_scores)), sorted=True)
     out = []
     for score, idx in zip(top_results[0], top_results[1]):
         out.append((score, functions[idx]))
