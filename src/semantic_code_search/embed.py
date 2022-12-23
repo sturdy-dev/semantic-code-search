@@ -23,6 +23,9 @@ def _supported_file_extensions():
         '.h': 'c',
         '.cpp': 'cpp',
         '.hpp': 'cpp',
+        '.kt': 'kotlin',
+        '.kts': 'kotlin',
+        '.ktm': 'kotlin',
     }
 
 
