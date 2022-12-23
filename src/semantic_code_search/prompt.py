@@ -46,7 +46,7 @@ def _syntax_highlighting(text, file):
         lexer = TypeScriptLexer
     elif file.endswith('java'):
         lexer = JavaLexer
-    elif file.endswith('kt'):
+    elif file.endswith('kt') or file.endswith('kts') or file.endswith('ktm'):
         lexer = KotlinLexer
     elif file.endswith('rb'):
         lexer = RubyLexer
