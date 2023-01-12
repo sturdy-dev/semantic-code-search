@@ -26,6 +26,7 @@ def _supported_file_extensions():
         '.kt': 'kotlin',
         '.kts': 'kotlin',
         '.ktm': 'kotlin',
+        '.php': 'php',
     }
 
 
