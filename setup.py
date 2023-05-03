@@ -25,7 +25,7 @@ setuptools.setup(
     python_requires='>=3.8',
     url='https://github.com/sturdy-dev/semantic-code-search',
     package_dir={
-        "semantic_code_search": "src/semantic_code_search"
+        "": "src"
     },
     entry_points={
         'console_scripts': [
