@@ -59,18 +59,18 @@ def _extract_functions(nodes, fp, file_content, relevant_node_types):
     return out
 
 
-def _get_repo_functions(root, supported_file_extensions, relevant_node_types):
+def _get_repo_functions(root, supported_file_extensions, relevant_node_types, encoding):
     functions = []
     print('Extracting functions from {}'.format(root))
     for fp in tqdm([root + '/' + f for f in os.popen('git -C {} ls-files'.format(root)).read().split('\n')]):
         if not os.path.isfile(fp):
             continue
-        with open(fp, 'r') as f:
+        with open(fp, 'r', encoding=encoding) as f:
             lang = supported_file_extensions.get(fp[fp.rfind('.'):])
             if lang:
                 parser = get_parser(lang)
                 file_content = f.read()
-                tree = parser.parse(bytes(file_content, 'utf8'))
+                tree = parser.parse(file_content.encode(encoding))
                 all_nodes = list(_traverse_tree(tree.root_node))
                 functions.extend(_extract_functions(
                     all_nodes, fp, file_content, relevant_node_types))
@@ -81,7 +81,7 @@ def do_embed(args, model):
     nodes_to_extract = ['function_definition', 'method_definition',
                         'function_declaration', 'method_declaration']
     functions = _get_repo_functions(
-        args.path_to_repo, _supported_file_extensions(), nodes_to_extract)
+        args.path_to_repo, _supported_file_extensions(), nodes_to_extract, args.encoding)
 
     if not functions:
         print('No supported languages found in {}. Exiting'.format(args.path_to_repo))
