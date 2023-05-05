@@ -52,6 +52,8 @@ def main():
                         type=str, required=False, help='Name or path of the model to use')
     parser.add_argument('-d', '--embed', action='store_true', default=False,
                         required=False, help='(Re)create the embeddings index for codebase')
+    parser.add_argument('-en', '--encoding', type=str, default='utf-8',
+                        required=False, help='Encoding type for codebase')
     parser.add_argument('-b', '--batch-size', metavar='BS',
                               type=int, default=32, help='Batch size for embeddings generation')
 
