@@ -53,7 +53,7 @@ def do_query(args, model):
     results = _query_embeddings(model, args)
 
     selected_idx = ResultScreen(results, args.query_text).run()
-    if not selected_idx:
+    if selected_idx is None:
         sys.exit(0)  # user cancelled
     file_path_with_line = (
         results[selected_idx][1]['file'], results[selected_idx][1]['line'] + 1)
