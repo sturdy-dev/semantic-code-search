@@ -65,15 +65,26 @@ def _get_repo_functions(root, supported_file_extensions, relevant_node_types):
     for fp in tqdm([root + '/' + f for f in os.popen('git -C {} ls-files'.format(root)).read().split('\n')]):
         if not os.path.isfile(fp):
             continue
-        with open(fp, 'r') as f:
-            lang = supported_file_extensions.get(fp[fp.rfind('.'):])
-            if lang:
-                parser = get_parser(lang)
-                file_content = f.read()
-                tree = parser.parse(bytes(file_content, 'utf8'))
-                all_nodes = list(_traverse_tree(tree.root_node))
-                functions.extend(_extract_functions(
-                    all_nodes, fp, file_content, relevant_node_types))
+        try:
+            with open(fp, 'r') as f:
+                lang = supported_file_extensions.get(fp[fp.rfind('.'):])
+                if lang:
+                    parser = get_parser(lang)
+                    file_content = f.read()
+                    tree = parser.parse(bytes(file_content, 'utf8'))
+                    all_nodes = list(_traverse_tree(tree.root_node))
+                    functions.extend(_extract_functions(
+                        all_nodes, fp, file_content, relevant_node_types))
+        except:
+            with open(fp, 'r', encoding='cp1252') as f:
+                lang = supported_file_extensions.get(fp[fp.rfind('.'):])
+                if lang:
+                    parser = get_parser(lang)
+                    file_content = f.read()
+                    tree = parser.parse(bytes(file_content, 'cp1252'))
+                    all_nodes = list(_traverse_tree(tree.root_node))
+                    functions.extend(_extract_functions(
+                        all_nodes, fp, file_content, relevant_node_types))
     return functions
 
 
